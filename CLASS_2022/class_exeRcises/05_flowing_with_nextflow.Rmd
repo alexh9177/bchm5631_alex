@@ -1,0 +1,197 @@
+---
+title: "Nextflow"
+author: "JR"
+date: "9/29/2021"
+output: html_document
+---
+
+Today we will install nextflow and install the nf-core/chip-seq pipeline. 
+
+Briefly, Nextflow is a taks manager that will send and organize thousands of tasks.
+
+NF_CORE has developed pipelines for ChIPseq, RNAseq, ATACseq and pretty much anything with seq. 
+
+Firstt: We need to install Nextflow on fiji so they can communicate. 
+
+Ultimately we will use nextflow to task manage the NF_CORE pipeline(s)
+There are so many tasks in the pipelines that it has all the QC needed for publicaton.
+
+
+Nextflow has amazing documentation and a good place to start is here:
+https://www.nextflow.io/docs/latest/getstarted.html
+
+
+Let's install Nextflow into our bin directory
+ 
+
+****************
+Step 1 Install:
+****************
+
+Nextflow will install itself with this simple commmand below. However, you will
+want to think about where to install it. 
+
+A reasonable place to install it is in a "bin" directory within your home directory
+
+/Users/<identikey>/bin/nextflow
+
+Alrighty, give it a go:
+
+```{bash install nextflow}
+
+cd ~
+ls -lah
+cd bin
+
+# if you don't see a bin directory make one using the commands below. 
+
+mkdir bin
+cd bin
+
+# Then install nextflow
+curl -s https://get.nextflow.io | bash
+```
+
+Nice it's installed just like that! 
+curl went and got a bash script (silent -s)
+and the results of that query were piped to bash 
+which runs the script to install itself.
+
+
+If you ever want to update nextflow just run the above. At the time of this doc
+it is at: v20.10.0
+
+********************************
+Step 2: Add nextflow to $PATH 
+********************************
+
+The $PATH is a default place the computer will look for commands. Imagine you
+had to tell Bash where the ls command is?
+
+/usr/bin/ls to list files instead of just ls
+
+So that path is an important aspect of unix/bash that you will never really hear
+about until it becomes a bug :) 
+
+Let's put nextflow in our path (just as ls, cd etc are) so we can call it from anywhere on fiji.
+
+```{bash $PATH}
+
+echo $PATH
+# we can make it easier to read with TRANSFORM (tr) a powerful bash command to
+# repalce and find text.
+
+echo $PATH | tr ":" "\n"
+# kinda hard to read with : seperated file
+
+```
+
+
+Now let's add nextflow to our .profile 
+.profile is loaded each time you login to the terminal
+```{BASH .profile}
+
+cd ~/.profile
+
+```
+
+To append a directory to PATH, we just need to overwrite the path variable
+To assign a variable in bash the assignment operator is the equals sign. 
+When referring to the contents saved in an environment variable, the $ is used
+```{bash source .profile}
+
+# if you don't have a path in your .profile we can add
+
+cat .profile 
+# should look like this (paste in with nano if no .profile file)
+PATH=$PATH:~/bin
+
+# then source the profile so it will be embedded each time your shell starts.
+
+source ~/.profile
+
+# Since /bin is in our path then after we source it will automatically
+# load in each session (just like ls, cd etc..)
+
+
+```
+
+
+Now check that nextflow can be run without referring to it's location
+```{BASH}
+
+nextflow -version
+```
+
+Sweet, that's it. We've successfully installed nextflow, added to $APTH and can use from anywhere now!
+
+
+****************
+Step 3: Install nf-core/chipseq pipeline
+****************
+
+Now we want to install the chipseq pipeline from NF-core. The cool thing about 
+this set up is essentially you are going to clone the latest github for chipseq
+by default. Simply run:
+
+
+```{BASH download chip-seq pipeline}
+
+# this is all you need to download the pipeline
+# note nextflow is the language being used to manage this task
+nextflow pull nf-core/chipseq
+
+```
+
+If you want a specific version you can use the flag to call that version.
+At the time of this document chipseq is at 1.2.1. 
+
+```{BASH specific nf_core pipeline version}
+
+nextflow pull -r 1.2.1 nf-core/chipseq
+
+```
+
+Whenever the pipeline is run, it actually does this step behind the scenes,
+so you don't actually need to do this in order to have the chipseq pipeline install.
+This means that if you want to run an older version, you can just indicate that when
+you're running that pipeline and it will install that version if it's not 
+already installed.
+
+*********************
+Step 4: Think about your directory structure
+*********************
+
+We have set up the class with the following directory structure -- let's make your directory nice and tidy.
+We will run our first test ChIP in the work directory.
+
+```{BASH setting up }
+cd /scratch/Shares/rinnclass/CLASS_2022/<your-folder>/class_exeRcises
+
+# first make a directory for all analyses in the class
+mdkir analysis
+
+# move to analysis 
+cd analysis
+
+# make a new directory associated with the .RMD 
+# e.g. 05_flowing_with_nextflow
+# in each dir associated with a given .RMD we will make:
+
+mkdir results
+mkdir work
+mdir figures # if there are no figures this isn't needed.
+
+```
+
+Sometimes nextflow versions don't work so well with a given pipeline. 
+
+1) You may need an edge release installed -- once installed all "self-update" commands will stay on edge
+
+>>> to remove edge rlease: export NXF_EDGE=0
+
+2) To updarte nextflow:
+
+Nextflow self-update
+
+
