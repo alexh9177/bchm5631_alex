@@ -145,6 +145,7 @@ lncrna_df <- filter(gencode_gr_length, gene_type == "lncRNA", type == "gene")
 
 # plotting lncRNA
 hist(log10(lncrna_df$width), breaks = 60)
+hist(log10(mrna_df$width), breaks =60)
 
 # Let's see what the average gene size is. Note we can no longer use width in a DF
 
@@ -158,7 +159,7 @@ Now let's go find the widths associated with gene-length.
 # How many types of "gene types" are there?
 ```{R gene types}
 
-# indexing into gene typse 
+# indexing into gene types 
 table(gencode_gr@elementMetadata$type)
 
 ## cool this tell us a lot about the genome with one line!
