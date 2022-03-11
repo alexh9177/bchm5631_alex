@@ -156,6 +156,9 @@ hist(width(consensus_peaks[[37]]), breaks = 1000, xlim = c(0, 300))
 
 ```{r filtering consensus peaks > 250}
 num_peaks_threshold <- 250
+
+num_peaks <- sapply(consensus_peaks, length)
+
 filtered_consensus_peaks <- consensus_peaks[num_peaks > num_peaks_threshold]
 # Now we have a shorter list of GRanges!
 summary(filtered_consensus_peaks)
@@ -166,7 +169,7 @@ for(i in 1:length(filtered_consensus_peaks)) {
   rtracklayer::export(consensus_peaks[[i]], 
                       paste0("/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/class_exeRcises/analysis/11_consensus_peaks/filtered_consensus_peaks/", 
                              names(consensus_peaks)[i], 
-                             "_filtrered_consensus_peaks.bed"))
+                             "_filtered_consensus_peaks.bed"))
 }
 # let's see what we lost and record it.
 # setdiff is a function to determine what is NOT in another list
@@ -185,7 +188,7 @@ lost_dbp
 write.table(lost_dbp, "lost_dbps.csv")
 ```
 
-# START POINT: reload in consensu peaks
+# START POINT: reload in consensus peaks
 Moving forward we will often start by loading the consensus peaks 
 Below is the code we will use to do that
 
