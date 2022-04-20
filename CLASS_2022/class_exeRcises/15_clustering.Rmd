@@ -34,7 +34,7 @@ Ok let's get started by grabbing the peak_occurrence_matrix from 14_2_our_data_i
 
 # loading in promoter peak occurence and convert to matrix
 ```{r loading in promoter_peak_occurence_df}
-#let's look at the promoter peak occurence matrix (takes ~4 min to load)
+#let's look at the promoter peak occurrence matrix (takes ~4 min to load)
 promoter_peak_occurence_matrix <- read.table("/path/12_peak_features/lncrna_mrna_promoter_peak_occurence_matrix.tsv")
 # read.table will make this a data.frame but will keep row names.
 # Converting to a matrix format for correlation analysis
@@ -147,7 +147,7 @@ ggsave("figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
 
 
 # Heatmap of lncRNA and mRNA seperately
-Now let's compare how lncRNAs and mRNAs cluster differnently?
+Now let's compare how lncRNAs and mRNAs cluster differently?
 Strategy: load annotations then index peak_occurrence for specific annotations
 
 #lncRNA promoters

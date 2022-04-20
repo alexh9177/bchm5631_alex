@@ -11,15 +11,15 @@ chunk_output_type: console
 knitr::opts_chunk$set(echo = TRUE)
 options(stringsAsFactors = FALSE)
 library(tidyverse)
-# library(tximport)
-# library(ggrepel)
+library(tximport)
+library(ggrepel)
 library(pheatmap)
 source("/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/util/plotting_functions.R")
 source("/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/util/_setup.R")
 # DEseq2 needs a specific package of 'locfit' that has to be installed first
 #install.packages("https://cran.r-project.org/src/contrib/Archive/locfit/locfit_1.5-9.4.tar.gz", repos=NULL, type="source")
 # Now we can install DEseq2
-BiocManager::install("DESeq2")
+#BiocManager::install("DESeq2")
 # now load the package
 library(DESeq2)
 ```
@@ -244,7 +244,7 @@ hist(rlog_counts_matrix, breaks = 100, xlim = c(0,20))
 hist(rowVars(rlog_counts_matrix), breaks = 100, xlim = c(0,4))
 # let's look at this as an object
 x <- rowVars(rlog_counts_matrix)
-# Filterting out genes that don't have variance of more than 2
+# Filtering out genes that don't have variance of more than 2
 rlog_var_genes_all <- rlog_counts_matrix[rowVars(rlog_counts_matrix) > 2,]
 # row center the counts -- we need to flip the matrix
 # we can only scale cols so we need to transmute (t)
@@ -254,6 +254,8 @@ scaled_counts <- t(scale(t(rlog_var_genes_all))) %>%
 # make heat map
 pheatmap(scaled_counts, show_rownames = FALSE)
 # saving
+
+# Doesn't return a filled in figure, check next class!! 
 pdf("figures/all_vs_total_genes_heatmap.pdf")
 pheatmap(scaled_counts, show_rownames = FALSE)
 dev.off()
@@ -535,3 +537,4 @@ pheatmap::pheatmap(lfc_matrix, show_rownames = FALSE, breaks = seq(-3, 3, length
 pdf("figures/nuc_vs_cyto_genes_heatmap.pdf")
 pheatmap::pheatmap(lfc_matrix, show_rownames = FALSE, breaks = seq(-3, 3, length.out = 100))
 dev.off()
+```
