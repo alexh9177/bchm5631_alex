@@ -46,7 +46,7 @@ peak_occurence_matrix <- promoter_peak_occurence_matrix[rowSums(promoter_peak_oc
 ```
 
 # calculating distnace matrix
-Let's get started by finding the 'distance' between each promtoer vector.
+Let's get started by finding the 'distance' between each promoter vector.
 We will make a distance matrix of 437 x437 and then use that for clustering.
 ```{r calculating distance matrix}
 # First let's take a look at the matrix

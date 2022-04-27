@@ -1,43 +1,40 @@
----
-title: "Genome-wide DNA binding in HEPG2"
-author: "Alex Hirano"
-date: "4/17/2022"
-output: github_document
-editor_options: 
-chunk_output_type: console
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
-knitr::opts_chunk$set(echo = TRUE)
-library(Gviz)
-library(ggpubr)
-library(ggplot2)
-library(tidyverse)
-library(GenomicRanges)
-library(ggdendro)
-library(pheatmap)
-# Sources w/proper file path
-source("/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/util/intersect_functions.R")
-source("/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/util/_setup.R")
-source("/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/util/plotting_functions.R")
-```
+Genome-wide DNA binding in HEPG2
+================
+Alex Hirano
+4/17/2022
 
 # Goal:
 
-Here we aim to download all available DNA binding protein (DBP) profiles in a single cell state (measured by ChIP-seq) . This will allow us to investigate the binding properties of hundreds of DBPs in the same cellular context or background. We aim to address several questions: (i) What are the number of peaks and genome coverage for each DBP? (ii) What are the binding preferences for promoters, gene-bodies and intergenic genomic regions? (iii) What are the similarities and differences across DBPs based on their genome-wide binding profiles genome-wide? (iv) What properties or preferences do promoters have for binding events. (iv) Are there reservoir promoters in HepG2 as defined in k562 previously? (v) How does binding to a promoter affect the transcriptional output of that promoter?
+Here we aim to download all available DNA binding protein (DBP) profiles
+in a single cell state (measured by ChIP-seq) . This will allow us to
+investigate the binding properties of hundreds of DBPs in the same
+cellular context or background. We aim to address several questions: (i)
+What are the number of peaks and genome coverage for each DBP? (ii) What
+are the binding preferences for promoters, gene-bodies and intergenic
+genomic regions? (iii) What are the similarities and differences across
+DBPs based on their genome-wide binding profiles genome-wide? (iv) What
+properties or preferences do promoters have for binding events. (iv) Are
+there reservoir promoters in HepG2 as defined in k562 previously? (v)
+How does binding to a promoter affect the transcriptional output of that
+promoter?
 
-To address these questions we have curated a set of X,000 ChIPs-eq data sets comprised of 486 DBPs in HEPG2 cells from the ENCODE consortrium. We required duplicate ChIP-seq experiments for a given DBP and other criterion that can be found here :
+To address these questions we have curated a set of X,000 ChIPs-eq data
+sets comprised of 486 DBPs in HEPG2 cells from the ENCODE consortrium.
+We required duplicate ChIP-seq experiments for a given DBP and other
+criterion that can be found here :
 
 <https://www.encodeproject.org/report/?type=Experiment&status=released&assay_slims=DNA+binding&biosample_ontology.term_name=HepG2&assay_title=TF+ChIP-seq&biosample_ontology.classification=cell+line&files.read_length=100&files.read_length=76&files.read_length=75&files.read_length=36&assay_title=Control+ChIP-seq&assay_title=Histone+ChIP-seq&files.run_type=single-ended>
 
 ## These samples were selected on the following criteria:
 
-1)  "chromatin" interaction data, then DNA binding data, cell line HEPG2, "TF-Chip-seq".
-2)  We further selected "TF Chip-seq", "Control chip-seq" and "Histone Chip-seq".
-3)  We selected several read lengths to get the most DNA binding proteins (DBPs)
-4)  Read lengths: 100, 76, 75, 36
-5)  ONLY SINGLE END READS (this eliminates 54 samples)
+1.  “chromatin” interaction data, then DNA binding data, cell line
+    HEPG2, “TF-Chip-seq”.
+2.  We further selected “TF Chip-seq”, “Control chip-seq” and “Histone
+    Chip-seq”.
+3.  We selected several read lengths to get the most DNA binding
+    proteins (DBPs)
+4.  Read lengths: 100, 76, 75, 36
+5.  ONLY SINGLE END READS (this eliminates 54 samples)
 
 ### Experimental data was downloading by (ENCODE report.tsv):
 
@@ -45,19 +42,24 @@ To address these questions we have curated a set of X,000 ChIPs-eq data sets com
 
 ### The FASTQ files were downloaded with:
 
-"<https://www.encodeproject.org/metadata/?status=released&assay_slims=DNA+binding&biosample_ontology.term_name=HepG2&assay_title=TF+ChIP-seq&biosample_ontology.classification=cell+line&files.read_length=100&files.read_length=76&files.read_length=75&files.read_length=36&assay_title=Control+ChIP-seq&assay_title=Histone+ChIP-seq&files.run_type=single-ended&type=Experiment>"
+“<https://www.encodeproject.org/metadata/?status=released&assay_slims=DNA+binding&biosample_ontology.term_name=HepG2&assay_title=TF+ChIP-seq&biosample_ontology.classification=cell+line&files.read_length=100&files.read_length=76&files.read_length=75&files.read_length=36&assay_title=Control+ChIP-seq&assay_title=Histone+ChIP-seq&files.run_type=single-ended&type=Experiment>”
 
-MD5sums were checked with all passing (see encode_file_info function to reterive MD5Sum values that are not available from the encode portal (/util)
+MD5sums were checked with all passing (see encode\_file\_info function
+to reterive MD5Sum values that are not available from the encode portal
+(/util)
 
 ### Processing data:
 
-We processed all the read alignments and peak calling using the NF_CORE ChIP-seq pipeline: (nfcore/chipseq v1.2.1)
+We processed all the read alignments and peak calling using the NF\_CORE
+ChIP-seq pipeline: (nfcore/chipseq v1.2.1)
 
 ## Next we created consensus peaks that overlap in both replicates
 
-Our strategy was to take peaks in each replicate and find all overlapping peak windows. We then took the union length of the overlapping range in each peak window.
+Our strategy was to take peaks in each replicate and find all
+overlapping peak windows. We then took the union length of the
+overlapping range in each peak window.
 
-```{r creating-consensus-peaks}
+``` r
 # create_consensus_peaks requires an annotation .GTF file - loading in Gencode v32 annotations.
 gencode_gr <- rtracklayer::import("/scratch/Shares/rinnclass/CLASS_2022/data/genomes/gencode.v32.annotation.gtf")
 # Creating consensus peaks function to create a .bed file of overlapping peaks in each replicate.
@@ -74,9 +76,9 @@ gencode_gr <- rtracklayer::import("/scratch/Shares/rinnclass/CLASS_2022/data/gen
 # }
 ```
 
-# loading in consensus peaks to prevent rerunning create_consensus_peaks function
+# loading in consensus peaks to prevent rerunning create\_consensus\_peaks function
 
-```{r consensus-peak-filtering}
+``` r
 # Loading in files via listing and rtracklayer import
 consensus_fl <- list.files("/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/class_exeRcises/analysis/11_consensus_peaks/consensus_peaks", full.names = T)
 # importing (takes ~5min)
@@ -90,13 +92,23 @@ filtered_consensus_peaks <- consensus_peaks[num_peaks > num_peaks_threshold]
 # Result: these were the DBPs that were filtered out.
 filtered_dbps <- consensus_peaks[num_peaks < num_peaks_threshold]
 names(filtered_dbps)
+```
+
+    ##  [1] "CEBPZ"    "GPBP1L1"  "H3K27me3" "HMGA1"    "IRF3"     "MLLT10"  
+    ##  [7] "MYBL2"    "NCOA5"    "RNF219"   "RORA"     "ZBTB3"    "ZFP36"   
+    ## [13] "ZFP62"    "ZMAT5"    "ZNF10"    "ZNF17"    "ZNF260"   "ZNF382"  
+    ## [19] "ZNF48"    "ZNF484"   "ZNF577"   "ZNF597"   "ZNF7"
+
+``` r
 # We have this many remaining DBPs
 length(filtered_consensus_peaks)
 ```
 
+    ## [1] 460
+
 ## Now we will determine the peak number and genome coverage for each DBP.
 
-```{r peak number and coverage per DBP}
+``` r
 # Let's start with loading in the number of peaks each DBP has -- using length.
 num_peaks_df <- data.frame("dbp" = names(filtered_consensus_peaks),
                            "num_peaks" = sapply(filtered_consensus_peaks, length))
@@ -106,11 +118,14 @@ num_peaks_df$total_peak_length <- sapply(filtered_consensus_peaks, function(x) s
 hist(num_peaks_df$total_peak_length)
 ```
 
+![](Final_files/figure-gfm/peak%20number%20and%20coverage%20per%20DBP-1.png)<!-- -->
+
 # Now we will create promoter annotations for lncRNA and mRNA and both.
 
-We have created a function get_promter_regions that has up and downstream parameters
+We have created a function get\_promter\_regions that has up and
+downstream parameters
 
-```{r promoter-gene-body-annotations}
+``` r
 # creating lncRNA and mRNA promoters
 lncrna_mrna_promoters <- get_promoter_regions(gencode_gr, biotype = c("lncRNA", "protein_coding", upstream = 3000, downstream = 3000))
 names(lncrna_mrna_promoters) <- lncrna_mrna_promoters$gene_id
@@ -142,7 +157,7 @@ rtracklayer::export(lncrna_mrna_genebody, "analysis/results/mrna_genebody.gtf")
 
 # Determining the overlaps of chip peaks with promoters and genebodys
 
-```{r DBP CHIP peaks overlap with promoters and genebody }
+``` r
 # creating index to subset lncRNA and mRNA annotations
 lncrna_gene_ids <- lncrna_mrna_genebody$gene_id[lncrna_mrna_genebody$gene_type == "lncRNA"]
 mrna_gene_ids <- lncrna_mrna_genebody$gene_id[lncrna_mrna_genebody$gene_type == "protein_coding"]
@@ -165,11 +180,16 @@ write_csv(num_peaks_df, "analysis/results/num_peaks_df.csv")
 
 # Plotting peak annotation features for DBPs
 
-```{r plotting peak annotation features}
+``` r
 num_peaks_df <- read_csv("analysis/results/num_peaks_df.csv")
 # Distribution of peak numbers of all 460 DBPs
 ggplot(num_peaks_df, aes(x = num_peaks)) + 
   geom_histogram(bins = 70)
+```
+
+![](Final_files/figure-gfm/plotting%20peak%20annotation%20features-1.png)<!-- -->
+
+``` r
 # Plotting number of peaks versus total genome coverage
 ggplot(num_peaks_df, aes(x = num_peaks, y = total_peak_length)) +
   geom_point() + 
@@ -178,6 +198,11 @@ ggplot(num_peaks_df, aes(x = num_peaks, y = total_peak_length)) +
   ylab("BP covered") +
   xlab("Number of peaks") +
   ggtitle("Peak count vs. total bases covered")
+```
+
+![](Final_files/figure-gfm/plotting%20peak%20annotation%20features-2.png)<!-- -->
+
+``` r
 ggsave("analysis/figures/peak_num_vs_coverage.pdf")
 # Plotting number of peaks versus peaks overlapping promoters
 ggplot(num_peaks_df,
@@ -192,6 +217,11 @@ ggplot(num_peaks_df,
   stat_regline_equation(label.x = 35000, label.y = 18000) +
   ylim(0,60100) +
   xlim(0,60100)
+```
+
+![](Final_files/figure-gfm/plotting%20peak%20annotation%20features-3.png)<!-- -->
+
+``` r
 ggsave("analysis/figures/3_peak_num_vs_promoter_coverage.pdf")
 # Plotting peak overlaps with genebody
 ggplot(num_peaks_df,
@@ -206,6 +236,11 @@ ggplot(num_peaks_df,
   stat_regline_equation(label.x = 35000, label.y = 18000) +
   ylim(0,60100) +
   xlim(0,60100)
+```
+
+![](Final_files/figure-gfm/plotting%20peak%20annotation%20features-4.png)<!-- -->
+
+``` r
 ggsave("analysis/figures/4_peak_num_vs_gene_body_coverage.pdf")
 # there is a large amount of data explained (almost all by genebodys)
 # Let's see what percentage of the genome genebodys cover:
@@ -217,11 +252,15 @@ reduced_gene_bodies <- gencode_gr[gencode_gr$type == "gene"] %>%
 reduced_gene_bodies/3.2e9
 ```
 
+    ## [1] 0.589159
+
 # Counting the number of overlaps at each promoter
 
-Promoters are the cols and DBPs rows thus we can retrieve the number of binding events at each promoter unlike the "counts parameter" that just gives total number of overlaps
+Promoters are the cols and DBPs rows thus we can retrieve the number of
+binding events at each promoter unlike the “counts parameter” that just
+gives total number of overlaps
 
-```{r peak occurence matrix}
+``` r
 # Creating matrix of promoters(annotation feature) as cols and DBPs as rows (takes ~5min)
 promoter_peak_occurence <- count_peaks_per_feature(lncrna_mrna_promoters, filtered_consensus_peaks, 
                                                type = "occurrence")
@@ -241,11 +280,12 @@ write_csv(peak_occurence_df, "analysis/results/peak_occurence_dataframe.csv")
 
 # WHERE DO YOU WANT TO GO FROM HERE ?
 
-
 # lncRNA and mRNA clustering comparison
-We wanted to examine the difference between lncRNA and mRNA clustering w/respect to POL2A and POLR2A S5/S2
 
-```{r lncRNA promoter clustering}
+We wanted to examine the difference between lncRNA and mRNA clustering
+w/respect to POL2A and POLR2A S5/S2
+
+``` r
 # Used to build the peak occurrence matrix
 write.table(promoter_peak_occurence, "/scratch/Shares/rinnclass/CLASS_2022/alhi9177/bchm5631_alex/CLASS_2022/analysis/results/lncrna_mrna_promoter_peak_occurence_matrix.tsv")
 
@@ -261,30 +301,61 @@ mrna_promoters <- rtracklayer::import("analysis/results/mRNA_promoters.gtf")
 lncrna_peak_occurence <- peak_occurence_matrix[,lncrna_promoters$gene_id]
 bin_hier_lncrna <- hclust(dist(lncrna_peak_occurence, method = "binary"))
 ggdendro::ggdendrogram(bin_hier_lncrna, rotate = TRUE, size = 10)
+```
+
+![](Final_files/figure-gfm/lncRNA%20promoter%20clustering-1.png)<!-- -->
+
+``` r
 ggsave("analysis/figures/lncrna_hclust_binary_dist.pdf", height = 49, width = 6)
 
 # Repeat the same for mRNA
 mrna_peak_occurence <- peak_occurence_matrix[,mrna_promoters$gene_id]
 bin_hier_mrna <- hclust(dist(mrna_peak_occurence, method = "binary"))
 ggdendro::ggdendrogram(bin_hier_mrna, rotate = TRUE,  size = 10)
+```
+
+![](Final_files/figure-gfm/lncRNA%20promoter%20clustering-2.png)<!-- -->
+
+``` r
 ggsave("analysis/figures/mrna_hclust_binary_dist.pdf", height = 44, width = 6)
 ```
 
 # Results
 
-There doesn't seem to be a difference in preference between POLR2A phospho S2/S5 binding between mRNA and lncRNA in Hep32.
-For both plots, POLR2A S2 is flanked by ASR2L, FUBP1, and TRAFD1 above; and POL2A, TP53, and FOXJ3 below. POLR2A S5 is flanked by ZFN652, ZFN629, and ZFN 710 above and PAF1, ZBTB7A, and NFE2L1 below.
-Both of the POL2RA genes diverge at the same location between mRNA and lncRNA, suggesting no preference in binding affinity for either.
+There doesn’t seem to be a difference in preference between POLR2A
+phospho S2/S5 binding between mRNA and lncRNA in Hep32. For both plots,
+POLR2A S2 is flanked by ASR2L, FUBP1, and TRAFD1 above; and POL2A, TP53,
+and FOXJ3 below. POLR2A S5 is flanked by ZFN652, ZFN629, and ZFN 710
+above and PAF1, ZBTB7A, and NFE2L1 below. Both of the POL2RA genes
+diverge at the same location between mRNA and lncRNA, suggesting no
+preference in binding affinity for either.
 
 # Dendrogram plot
 
-We wanted to explore sample similarity after generating bin_hier (cross-correlation across all samples)
-```{r Generating dendrogram plot}
+We wanted to explore sample similarity after generating bin\_hier
+(cross-correlation across all samples)
+
+``` r
 # Generate peak occurrence and bin_hier
 peak_occurence_matrix[1:2,1:5]
+```
+
+    ##      ENSG00000243485.5 ENSG00000237613.2 ENSG00000186092.6 ENSG00000238009.6
+    ## ADNP                 0                 0                 0                 0
+    ## AFF4                 0                 0                 0                 0
+    ##      ENSG00000239945.1
+    ## ADNP                 0
+    ## AFF4                 0
+
+``` r
 peak_occurence_dist <- dist(peak_occurence_matrix, method = "binary")
 peak_occurence_dist[1:10]
+```
 
+    ##  [1] 0.8088089 0.8358010 0.8238244 0.8349438 0.9438168 0.8293561 0.8316339
+    ##  [8] 0.8396660 0.8504692 0.8194388
+
+``` r
 # Generating a ggdendrogram
 bin_hier <- hclust(peak_occurence_dist, method = "complete")
 
@@ -306,32 +377,77 @@ ggdendro::ggdendrogram(bin_hier, rotate = FALSE,  size = 3,
    panel.grid.minor = element_blank(),
      panel.border = element_blank()
    )
+```
+
+![](Final_files/figure-gfm/Generating%20dendrogram%20plot-1.png)<!-- -->
+
+``` r
 ggsave("analysis/figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
 ```
 
 # Results
 
-This generates a complete dendrogram but there's not much we can elucidate from this figure as-is. Subsequent figures will cover a clustering comparison between lncRNA and mRNA.
+This generates a complete dendrogram but there’s not much we can
+elucidate from this figure as-is. Subsequent figures will cover a
+clustering comparison between lncRNA and mRNA.
 
 # Making a heat map of high-binding promoters
 
-We wanted to examine the occurrence of high-binding promoters for our 3kb window using a heat map
-```{r Heat map clustering high-binding promoters}
+We wanted to examine the occurrence of high-binding promoters for our
+3kb window using a heat map
+
+``` r
 # Generating the high binders
 high_binders <- promoter_peak_occurence_matrix[,colSums(promoter_peak_occurence_matrix) > 300]
 peak_occurence_matrix_test <- high_binders[rowSums(promoter_peak_occurence_matrix) > 250, ]
 ncol(high_binders)
-min(rowSums(peak_occurence_matrix_test)) 
-which.min(rowSums(high_binders))
+```
 
+    ## [1] 5663
+
+``` r
+min(rowSums(peak_occurence_matrix_test)) 
+```
+
+    ## [1] 26
+
+``` r
+which.min(rowSums(high_binders))
+```
+
+    ## H3K9me3 
+    ##      94
+
+``` r
 # Which DBP binds the high binders? The low binders?
 max(rowSums(high_binders))
-table(max(rowSums(high_binders)))
-which.max(rowSums(high_binders))
+```
 
+    ## [1] 5663
+
+``` r
+table(max(rowSums(high_binders)))
+```
+
+    ## 
+    ## 5663 
+    ##    1
+
+``` r
+which.max(rowSums(high_binders))
+```
+
+    ## ARID4B 
+    ##      9
+
+``` r
 # Generate and save heatmap
 xx <- pheatmap(high_binders, show_colnames = FALSE, clustering_distance_rows = "binary", clustering_distance_cols = "binary")
+```
 
+![](Final_files/figure-gfm/Heat%20map%20clustering%20high-binding%20promoters-1.png)<!-- -->
+
+``` r
 save_pheatmap_pdf <- function(x, filename, width=20, height=20) {
    stopifnot(!missing(x))
    stopifnot(!missing(filename))
@@ -341,8 +457,19 @@ save_pheatmap_pdf <- function(x, filename, width=20, height=20) {
    dev.off()
 }
 save_pheatmap_pdf(xx, "analysis/figures/test.pdf")
+```
+
+    ## png 
+    ##   2
+
+``` r
 # ggsave("analysis/figures/high_binder_heatmap.pdf", height = 44, width = 6 )
 ```
+
 # Results
 
-These results make sense - filtering for high binders and binary, you're either highly bound (1, red) or not highly bound (0, blue). The majority of the promoters here seem to be highly bound, especially towards the middle of the dendrogram. Numerous promoters seem to be high-binding for HepG2.
+These results make sense - filtering for high binders and binary, you’re
+either highly bound (1, red) or not highly bound (0, blue). The majority
+of the promoters here seem to be highly bound, especially towards the
+middle of the dendrogram. Numerous promoters seem to be high-binding for
+HepG2.
