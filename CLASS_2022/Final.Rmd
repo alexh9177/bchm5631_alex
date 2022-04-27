@@ -243,7 +243,9 @@ peak_occurence_df <- data.frame("gene_id" = colnames(promoter_peak_occurence),
 
 
 # lncRNA and mRNA clustering comparison
-We wanted to examine the difference between lncRNA and mRNA clustering w/respect to POL2A and POLR2A S5/S2
+We wanted to examine the difference between lncRNA and mRNA clustering w/respect to POLR2A and POLR2A S5/S2
+
+POLR2A codes for RNA polymerase II subunit 1, where S2 and S5 indicate phosphorylations on serines 2 and 5 of the hepapeptide repeats in the C-terminal domain CTD.
 
 ```{r lncRNA promoter clustering}
 # Used to build the peak occurrence matrix
@@ -296,7 +298,6 @@ ggdendro::ggdendrogram(bin_hier, rotate = FALSE,  size = 3,
    coord_flip() +
    scale_y_continuous() +
    scale_x_continuous(position = "top") +
-
    scale_x_continuous(breaks = seq_along(bin_hier$labels[bin_hier$order]),
              labels = bin_hier$labels[bin_hier$order], position = "top",
              expand = c(0,0)) +
@@ -352,3 +353,5 @@ knitr::include_graphics('analysis/figures/test.pdf')
 # Results
 
 These results make sense - filtering for high binders and binary, you're either highly bound (1, red) or not highly bound (0, blue). The majority of the promoters here seem to be highly bound, especially towards the middle of the dendrogram. Numerous promoters seem to be high-binding for HepG2.
+
+POLR2AphosS5 seems to be more high-binding than POLR2AphosS2, which makes sense as the phosS2 segment (largest segment of RNA Pol II) is actively involved in transcription and not constantly bound.
