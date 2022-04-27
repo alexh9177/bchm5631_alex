@@ -268,6 +268,9 @@ mrna_peak_occurence <- peak_occurence_matrix[,mrna_promoters$gene_id]
 bin_hier_mrna <- hclust(dist(mrna_peak_occurence, method = "binary"))
 ggdendro::ggdendrogram(bin_hier_mrna, rotate = TRUE,  size = 10)
 ggsave("analysis/figures/mrna_hclust_binary_dist.pdf", height = 44, width = 6)
+
+knitr::include_graphics('analysis/figures/lncrna_hclust_binary_dist.pdf')
+knitr::include_graphics('analysis/figures/mrna_hclust_binary_dist.pdf')
 ```
 
 # Results
@@ -307,6 +310,7 @@ ggdendro::ggdendrogram(bin_hier, rotate = FALSE,  size = 3,
      panel.border = element_blank()
    )
 ggsave("analysis/figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
+knitr::include_graphics('analysis/figures/ggdendro_plot.pdf')
 ```
 
 # Results
@@ -341,7 +345,7 @@ save_pheatmap_pdf <- function(x, filename, width=20, height=20) {
    dev.off()
 }
 save_pheatmap_pdf(xx, "analysis/figures/test.pdf")
-# ggsave("analysis/figures/high_binder_heatmap.pdf", height = 44, width = 6 )
+knitr::include_graphics('analysis/figures/test.pdf')
 ```
 # Results
 

@@ -318,7 +318,17 @@ ggdendro::ggdendrogram(bin_hier_mrna, rotate = TRUE,  size = 10)
 
 ``` r
 ggsave("analysis/figures/mrna_hclust_binary_dist.pdf", height = 44, width = 6)
+
+knitr::include_graphics('analysis/figures/lncrna_hclust_binary_dist.pdf')
 ```
+
+![](analysis/figures/lncrna_hclust_binary_dist.pdf)<!-- -->
+
+``` r
+knitr::include_graphics('analysis/figures/mrna_hclust_binary_dist.pdf')
+```
+
+![](analysis/figures/mrna_hclust_binary_dist.pdf)<!-- -->
 
 # Results
 
@@ -383,7 +393,10 @@ ggdendro::ggdendrogram(bin_hier, rotate = FALSE,  size = 3,
 
 ``` r
 ggsave("analysis/figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
+knitr::include_graphics('analysis/figures/ggdendro_plot.pdf')
 ```
+
+![](analysis/figures/ggdendro_plot.pdf)<!-- -->
 
 # Results
 
@@ -463,10 +476,10 @@ save_pheatmap_pdf(xx, "analysis/figures/test.pdf")
     ##   2
 
 ``` r
-# ggsave("analysis/figures/high_binder_heatmap.pdf", height = 44, width = 6 )
+knitr::include_graphics('analysis/figures/test.pdf')
 ```
 
-# Results
+![](analysis/figures/test.pdf)<!-- --> \# Results
 
 These results make sense - filtering for high binders and binary, you’re
 either highly bound (1, red) or not highly bound (0, blue). The majority
