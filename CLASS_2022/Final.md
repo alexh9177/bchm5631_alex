@@ -275,7 +275,7 @@ peak_occurence_df <- data.frame("gene_id" = colnames(promoter_peak_occurence),
                                 "strand" = lncrna_mrna_promoters@strand,
                                 "number_of_dbp" = colSums(promoter_peak_occurence))
 # exporting
-write_csv(peak_occurence_df, "analysis/results/peak_occurence_dataframe.csv")
+#write_csv(peak_occurence_df, "analysis/results/peak_occurence_dataframe.csv")
 ```
 
 # WHERE DO YOU WANT TO GO FROM HERE ?
@@ -306,7 +306,7 @@ ggdendro::ggdendrogram(bin_hier_lncrna, rotate = TRUE, size = 10)
 ![](Final_files/figure-gfm/lncRNA%20promoter%20clustering-1.png)<!-- -->
 
 ``` r
-ggsave("analysis/figures/lncrna_hclust_binary_dist.pdf", height = 49, width = 6)
+#ggsave("analysis/figures/lncrna_hclust_binary_dist.pdf", height = 49, width = 6)
 
 # Repeat the same for mRNA
 mrna_peak_occurence <- peak_occurence_matrix[,mrna_promoters$gene_id]
@@ -317,7 +317,7 @@ ggdendro::ggdendrogram(bin_hier_mrna, rotate = TRUE,  size = 10)
 ![](Final_files/figure-gfm/lncRNA%20promoter%20clustering-2.png)<!-- -->
 
 ``` r
-ggsave("analysis/figures/mrna_hclust_binary_dist.pdf", height = 44, width = 6)
+#ggsave("analysis/figures/mrna_hclust_binary_dist.pdf", height = 44, width = 6)
 
 knitr::include_graphics('analysis/figures/lncrna_hclust_binary_dist.pdf')
 ```
@@ -392,7 +392,7 @@ ggdendro::ggdendrogram(bin_hier, rotate = FALSE,  size = 3,
 ![](Final_files/figure-gfm/Generating%20dendrogram%20plot-1.png)<!-- -->
 
 ``` r
-ggsave("analysis/figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
+#ggsave("analysis/figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
 knitr::include_graphics('analysis/figures/ggdendro_plot.pdf')
 ```
 
@@ -469,17 +469,13 @@ save_pheatmap_pdf <- function(x, filename, width=20, height=20) {
    grid::grid.draw(x$gtable)
    dev.off()
 }
-save_pheatmap_pdf(xx, "analysis/figures/test.pdf")
-```
-
-    ## png 
-    ##   2
-
-``` r
+#save_pheatmap_pdf(xx, "analysis/figures/test.pdf")
 knitr::include_graphics('analysis/figures/test.pdf')
 ```
 
-![](analysis/figures/test.pdf)<!-- --> \# Results
+![](analysis/figures/test.pdf)<!-- -->
+
+# Results
 
 These results make sense - filtering for high binders and binary, you’re
 either highly bound (1, red) or not highly bound (0, blue). The majority

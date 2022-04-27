@@ -236,7 +236,7 @@ peak_occurence_df <- data.frame("gene_id" = colnames(promoter_peak_occurence),
                                 "strand" = lncrna_mrna_promoters@strand,
                                 "number_of_dbp" = colSums(promoter_peak_occurence))
 # exporting
-write_csv(peak_occurence_df, "analysis/results/peak_occurence_dataframe.csv")
+#write_csv(peak_occurence_df, "analysis/results/peak_occurence_dataframe.csv")
 ```
 
 # WHERE DO YOU WANT TO GO FROM HERE ?
@@ -261,13 +261,13 @@ mrna_promoters <- rtracklayer::import("analysis/results/mRNA_promoters.gtf")
 lncrna_peak_occurence <- peak_occurence_matrix[,lncrna_promoters$gene_id]
 bin_hier_lncrna <- hclust(dist(lncrna_peak_occurence, method = "binary"))
 ggdendro::ggdendrogram(bin_hier_lncrna, rotate = TRUE, size = 10)
-ggsave("analysis/figures/lncrna_hclust_binary_dist.pdf", height = 49, width = 6)
+#ggsave("analysis/figures/lncrna_hclust_binary_dist.pdf", height = 49, width = 6)
 
 # Repeat the same for mRNA
 mrna_peak_occurence <- peak_occurence_matrix[,mrna_promoters$gene_id]
 bin_hier_mrna <- hclust(dist(mrna_peak_occurence, method = "binary"))
 ggdendro::ggdendrogram(bin_hier_mrna, rotate = TRUE,  size = 10)
-ggsave("analysis/figures/mrna_hclust_binary_dist.pdf", height = 44, width = 6)
+#ggsave("analysis/figures/mrna_hclust_binary_dist.pdf", height = 44, width = 6)
 
 knitr::include_graphics('analysis/figures/lncrna_hclust_binary_dist.pdf')
 knitr::include_graphics('analysis/figures/mrna_hclust_binary_dist.pdf')
@@ -309,7 +309,7 @@ ggdendro::ggdendrogram(bin_hier, rotate = FALSE,  size = 3,
    panel.grid.minor = element_blank(),
      panel.border = element_blank()
    )
-ggsave("analysis/figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
+#ggsave("analysis/figures/ggdendro_plot.pdf", height = 50, width = 12, limitsize = F)
 knitr::include_graphics('analysis/figures/ggdendro_plot.pdf')
 ```
 
@@ -320,6 +320,7 @@ This generates a complete dendrogram but there's not much we can elucidate from 
 # Making a heat map of high-binding promoters
 
 We wanted to examine the occurrence of high-binding promoters for our 3kb window using a heat map
+
 ```{r Heat map clustering high-binding promoters}
 # Generating the high binders
 high_binders <- promoter_peak_occurence_matrix[,colSums(promoter_peak_occurence_matrix) > 300]
@@ -344,9 +345,10 @@ save_pheatmap_pdf <- function(x, filename, width=20, height=20) {
    grid::grid.draw(x$gtable)
    dev.off()
 }
-save_pheatmap_pdf(xx, "analysis/figures/test.pdf")
+#save_pheatmap_pdf(xx, "analysis/figures/test.pdf")
 knitr::include_graphics('analysis/figures/test.pdf')
 ```
+
 # Results
 
 These results make sense - filtering for high binders and binary, you're either highly bound (1, red) or not highly bound (0, blue). The majority of the promoters here seem to be highly bound, especially towards the middle of the dendrogram. Numerous promoters seem to be high-binding for HepG2.
